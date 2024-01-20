@@ -2,6 +2,7 @@
 
 <h3>MAPTY is a fitness tracking application that allows users to log and visualize their running and cycling workouts on an interactive map.</h3><br>
 <p>
+  APP LINK : https://vikkram0821.github.io/Mapty-Application/
 <h3>Features🚀  --> </h3>
 <h5>Workout Logging:</h5> Record details of your running and cycling workouts, including distance, duration, and additional metrics like cadence or elevation gain. <br>
 <h5>Interactive Map:</h5>  View your workouts on an interactive map powered by OpenStreetMap, providing a visual representation of your fitness journey.<br>
