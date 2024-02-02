@@ -1,8 +1,5 @@
 'use strict';
-
-
-
-
+//Declating the dom elements
 const form = document.querySelector('.form');
 const containerWorkouts = document.querySelector('.workouts');
 const resetbtn = document.querySelector(".resetAll")
@@ -31,7 +28,7 @@ const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()}`
 }}
 
-
+//Running class
 class Running extends Workout{
     type = "running";
     constructor(coords,distance,duration,cadence) {
@@ -45,7 +42,7 @@ class Running extends Workout{
         return this.pace;
     }
 }
-
+//Cycling class
 class Cycling extends Workout{
     type = "cycling";
     constructor(coords,distance,duration,elevationGain) {
@@ -64,29 +61,30 @@ const run1 = new Running([50,20],5.5,20,250);
 const cycl1 = new Cycling([30,20],6.5,10,150);
 
 
-//App
+//App #1 (Main App Func)
 class App {
     #map;
     #workouts = [];
     mapZoomLevel = 13;
     constructor(){
         resetbtn.classList.add("reset-hidden")
-        this._getCurrPosition();
-        this._getLocalStorage();
-       //Dom Elements
-       form.addEventListener("submit",this._newWorkout.bind(this));
+        this._getCurrPosition(); // To get the location
+        this._getLocalStorage(); //To set local storage
+
+     //Dom Elements
+    form.addEventListener("submit",this._newWorkout.bind(this)); //To create new workout after Submitting
        
-      
+      //RESET (To reset the workouts)
         resetbtn.addEventListener("click",function(){
         app.reset();
         resetbtn.classList.add("reset-hidden")
     })
   
-       inputType.addEventListener("change",this._toggleElevation.bind(this));
+       inputType.addEventListener("change",this._toggleElevation.bind(this)); //To change the type(Cadence or Elevation gain) by changing from running/cycling
 
-       containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+       containerWorkouts.addEventListener('click', this._moveToPopup.bind(this)); //To view the location of the workout
     }
-
+// To load the map after accessing the location 
     _getCurrPosition(){
 
         if(navigator.geolocation)
@@ -94,14 +92,15 @@ class App {
             alert(":Could not get your Co-ords")
         })
     }
-
+//To load the map!!
     _loadMap(position){
 
         const {latitude} = position.coords;
         const {longitude} = position.coords;
        
         const coords = [latitude,longitude]
-    
+
+//leaflet default doc code. 
         this.#map = L.map('map').setView(coords, 13);
     
         L.tileLayer('https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
@@ -113,7 +112,7 @@ class App {
         this.#workouts.forEach (wrk => this.renderWorkoutMarker(wrk) )
     }
 
-    
+//To hide the form
   _hideForm() {
     // Empty inputs
     inputDistance.value = inputDuration.value = inputCadence.value = inputElevation.value =
@@ -124,13 +123,15 @@ class App {
     setTimeout(() => (form.style.display = 'grid'), 1000);
   }
 
-    
+//To show the form to fill the details after clicking
     _showForm(mapE){
         mapEvent =mapE
             console.log(mapEvent);
             form.classList.remove("hidden");
             inputDistance.focus();
     }
+
+    //Cadence/Elevation gain Toggle
     _toggleElevation(){
         inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
         inputElevation.closest(".form__row").classList.toggle("form__row--hidden");
@@ -140,14 +141,14 @@ class App {
         e.preventDefault();
        const {lat,lng} = mapEvent.latlng;
        const allPositive =  (...input) => input.every( inpt => inpt>0)
-      const ValidInput = (...input) => input.every( inpt => Number.isFinite(inpt));
+       const ValidInput = (...input) => input.every( inpt => Number.isFinite(inpt));
       //to get datas
 
       const type = inputType.value;
       const distance = +inputDistance.value;
       const duration = +inputDuration.value;
 
-       //Running
+//--> 1.Running
      if(type === "running"){
 
         const cadence = +inputCadence.value;
@@ -161,7 +162,8 @@ class App {
         this.renderWorkoutMarker(workout);
         this.renderWorkout(workout);
      }
-       //Cycling (can have negative elevation value)
+
+//--> 2.Cycling (can have negative elevation value)
        if(type === "cycling"){
      
         const elevationGain = +inputElevation.value;
@@ -174,15 +176,13 @@ class App {
         this.renderWorkoutMarker(workout);
         this.renderWorkout(workout);
      }
-        //Clear Input fields
+        //Clear Input fields + setting local storage
     
         this._hideForm();
-    
-       
         this._setLocalStorage();
     }
 
-  
+// To render the marker after clicking on the map
     renderWorkoutMarker(workout){
         L.marker(workout.coords).addTo(this.#map)
         .bindPopup(L.popup({
@@ -197,6 +197,7 @@ class App {
         form.classList.add("hidden")
     }
 
+//To add new workouts !!!!
     renderWorkout(workout){
     let html = `
         <li class="workout workout--${workout.type}" data-id=${workout.id}>
@@ -232,7 +233,7 @@ class App {
       </li>
         `;
 
-        if(workout.type === "cycling")
+if(workout.type === "cycling")
         html+= `
         <div class="workout__details">
         <span class="workout__icon">⚡️</span>
@@ -253,6 +254,7 @@ class App {
 
     }
 
+    //Click the workout to in the container workout to move the map to the exact location.
     _moveToPopup(e){
         if(!this.#map) return;
         
@@ -270,6 +272,8 @@ class App {
 
         })
     }
+
+    //Setting and getting local storage
     _setLocalStorage(){
               localStorage.setItem("workouts", JSON.stringify(this.#workouts))
     }
@@ -283,6 +287,7 @@ class App {
        this.#workouts.forEach (wrk => this.renderWorkout(wrk) )
        
     }
+    //TO reset all
     reset(){
     localStorage.removeItem('workouts');
     location.reload();
@@ -293,5 +298,5 @@ class App {
         
     
 }
-
+//Creating App!
 const app = new App();
